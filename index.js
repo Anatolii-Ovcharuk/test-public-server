@@ -99,7 +99,8 @@ app.get('/favicon.ico', (request, response) => {
     /* ████████████████████████████████████████ ROUTES ████████████████████████████████████████ */
 const freeCodeCampAPI = require('./routes/freeCodeCamp.js');
 app.use('/freeCodeCamp', freeCodeCampAPI);
-
+const mongoDB = require('./routes/mongoDB.js');
+app.use('/mongo-db', mongoDB);
 
     /* ████████████████████████████████████████ GLOBAL ERRORS: 404 / 500 ████████████████████████████████████████ */
 
