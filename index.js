@@ -1,7 +1,7 @@
 
     /* ████████████████████████████████████████ OPTIONS ████████████████████████████████████████ */
 
-const PORT = 3000;
+const PORT = 3001;
 const TEST = false;
 const CORS = true; /* Enable or disable Cors */
 const AccessDomain = '*' // Domain for access API: '*' (All) or 'http://example.com' (Current)
@@ -62,6 +62,9 @@ app.use((request, response, next) => {
         };
         console.log("Receive data Test:", obj)
     };
+    if (request) {
+        console.log('Requesting...', new Date().toTimeString(), new Date().toDateString(), request.url);
+    }
     next();
 });
 
@@ -106,7 +109,12 @@ app.use('/mongo-db', mongoDB);
 
 app.use((_, response, __) => {
     const code = 404;
-    response.status(code).json(returns(code, 'Not found'));
+    const data = {
+        error: "invalid url"
+    }
+    const add = returns(code, 'Not found');
+    response.status(code).json({...data, ...add});
+    // response.status(code).json(data);
 });
 
 app.use((error, _, response, __) => {
@@ -117,7 +125,7 @@ app.use((error, _, response, __) => {
 
 // Обработка всех других маршрутов
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Start successfull API on server port: ${PORT}.`.green);
     if (TEST) {
         console.log(`Server is running on http://127.0.0.1:${PORT}/`.blue);
