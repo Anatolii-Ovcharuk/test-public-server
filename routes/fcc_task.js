@@ -94,15 +94,18 @@ router.post('/api/users/:_id/exercises', async (request, response) => {
 
 
 
-router.get(['/api/users/:_id/logs', '/api/users/:_id/logs?[from][&to][&limit]'], async (req, res) => {
+router.get(['/api/users/:_id/logs', '/api/users/:_id/logs?[from][&to][&limit]'], async (request, response) => {
     try {
     // const object = Object.assign({}, request.params, request.query, request.body); 
-    const object = { ...req.params, ...req.query, ...req.body };
-    //   const { _id } = req.params;
+    const object = { ...request.params, ...request.query, ...request.body };
       const { from, to, limit, _id } = object;
       // Находим пользователя по _id
       const user = await TaskUser.findById(_id);
-      if (!user) return res.status(404).json({ error: 'User not found' });
+      
+    if (!user) {
+        const code = 404;
+        return response.status(code).json(Object.assign({}, returns(code, null), { error: 'User not found' }));
+    };
   
       // Фильтруем массив log
       let filteredLog = user.log;
@@ -126,73 +129,25 @@ router.get(['/api/users/:_id/logs', '/api/users/:_id/logs?[from][&to][&limit]'],
       }
   
       // Формируем ответ
-      res.json({
-        username: user.username,
-        count: filteredLog.length,
-        _id: user._id,
-        log: filteredLog.map((exercise) => ({
-          description: exercise.description,
-          duration: exercise.duration,
-          date: new Date(exercise.date).toDateString(),
-        })),
-      });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+        const data = {
+            username: user.username,
+            count: filteredLog.length,
+            _id: user._id,
+            log: filteredLog.map((exercise) => ({
+                description: exercise.description,
+                duration: exercise.duration,
+                date: new Date(exercise.date).toDateString(),
+            }))
+        };
+        response.json(data);
+        
+    } catch (error) {
+        const code = 500;
+        response.status(code).json(returns(code, error.message));
     }
   });
 
 
-// router.get(['/api/users/:_id/logs', '/api/users/:_id/logs?[from][&to][&limit]'], async (request, response) => {
-//     const req_method = request.method.toString().toUpperCase();
-//     try {
-//         // const object = Object.assign({}, request.params, request.query, request.body); 
-//         const object = { ...request.params, ...request.query, ...request.body };
-//         if (req_method === "GET" && request.path.includes('logs')) {
-//             const code = 200;
-//             const { from, to, limit, _id } = object;
-//             const user = await TaskUser.findById(_id);
-
-//             if (!user) {
-//                 const code = 404;
-//                 return response.status(code).json(Object.assign({}, returns(code, null), { error: 'User not found' }));
-//             };
-
-//             if (from || to) {
-//                 exercises = exercises.filter(exercise => {
-//                     const exerciseDate = new Date(exercise.date);
-//                     return (!from || exerciseDate >= new Date(from)) &&
-//                         (!to || exerciseDate <= new Date(to));
-//                 });
-//             }
-
-//             let exercises = user.log;
-//             if (limit) {
-//                 exercises = exercises.slice(0, Number(limit));
-//             };
-
-//             const data = {
-//                 username: user.username,
-//                 _id: user._id,
-//                 log: exercises.map(e => ({
-//                     description: e.description,
-//                     duration: e.duration,
-//                     date: e.date || Date.now() || new Date().toString(),
-//                 count: this.log.length,
-//                 })),
-//             };
-//             response.status(code).json(Object.assign({}, returns(code, null), data));  
-//         } else if (req_method !== "GET") {
-//             const code = 405;
-//             response.status(code).json(returns(code));
-//         } else {
-//             const code = 404;
-//             response.status(code).json(returns(code));
-//         };
-//     } catch (error) {
-//         const code = 500;
-//         response.status(code).json(returns(code, error.message));
-//     }
-// });
 
 
 
